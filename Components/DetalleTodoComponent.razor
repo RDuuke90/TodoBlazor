@@ -1,0 +1,31 @@
+@using TodoApi.Dtos
+@inject HttpClient httpClient
+
+<h2>@todo.title</h2>
+
+<p>Name: @user.name</p>
+<p>commpleted: @todo.completed</p>
+
+@code{
+
+    [Parameter]
+    public int id {set; get;}
+    private TodoDto todo {set; get;}
+
+    private User user {set; get;}
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            this.todo = await httpClient.GetFromJsonAsync<TodoDto>($"todos/{this.id}");
+            this.user = await httpClient.GetFromJsonAsync<User>($"users/{this.todo.userId}");
+
+        } catch (Exception ex) {
+            Console.WriteLine($"Error al cargar el todo: {ex.Message}");
+        }
+    }
+
+    public class User {
+        public string name {get; set; }
+    }
+}

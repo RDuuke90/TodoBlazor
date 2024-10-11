@@ -1,0 +1,15 @@
+<!-- Detalle de una TODO -->
+@page "/todo/{id:int}"
+@using TodoApi.Dtos
+@using TodoApi.Components
+
+@inject HttpClient httpClient
+
+<h1>Detalle del todo @id</h1>
+
+<DetalleTodoComponent id=@id />
+
+@code {
+    [Parameter]
+    public int id {set; get;}
+}
