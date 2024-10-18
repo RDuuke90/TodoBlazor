@@ -1,6 +1,7 @@
 <!--- Todos los TODO --->
 @page "/todo"
 @using TodoApi.Dtos
+@inject IJSRuntime JS
 @inject HttpClient httpClient
 
 <h1>Lista de TODOS</h1>
@@ -23,13 +24,40 @@
                     }
                     -> @todo.title
                 </a>
+                ---- 
+                <button @onclick="() => ConfirmDelete(todo.id)">Eliminar</button>
             </li>
         }
     </ul>
 }
 @code {
-    public List<TodoDto> todos;
+    public List<TodoDto>? todos;
+    
+    private IJSObjectReference? modules;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                modules = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Todo.razor.js");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error importing JS module: {ex.Message}");
+            }
+        }
+    }
 
+    private async Task ConfirmDelete(int id)
+    {
+        // Llamar a la función de confirmación desde el módulo JavaScript
+        var confirmed = await modules.InvokeAsync<bool>("confirmDelete", "Are you sure you want to delete this task?");
+        if (confirmed)
+        {
+            Console.WriteLine(id);
+        }
+    }
     //herencia -> Component -> OnInitializedAsync
     protected override async Task OnInitializedAsync()
     {
